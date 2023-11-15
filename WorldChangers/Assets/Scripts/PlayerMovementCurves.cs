@@ -16,8 +16,11 @@ public class PlayerMovementCurves : MonoBehaviour
     private float decelerationTime;
     private float accelerationTime;
     private int jumpDirection;
+    private float coyoteTime = 0.1f;
+    private float coyoteTimeCounter;
+    private float jumpBufferTime = 0.075f;
+    private float jumpBufferCounter;
 
-    
 
     void Update()
     {
@@ -29,10 +32,29 @@ public class PlayerMovementCurves : MonoBehaviour
         {
             jumpDirection = -1;
         }
+
+        if (IsGrounded())
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
         
-        if (Input.GetButtonDown("Jump") && IsGrounded())
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, jumpDirection * jumpingPower);
+            jumpBufferCounter = 0f;
         }
 
         if (Input.GetButtonUp("Jump") && rb2d.velocity.y > 0f && jumpDirection == 1)
@@ -40,12 +62,14 @@ public class PlayerMovementCurves : MonoBehaviour
             if (jumpDirection == 1)
             {
                 rb2d.velocity = new Vector2(rb2d.velocity.x, rb2d.velocity.y * 0.5f);
+                coyoteTimeCounter = 0f;
             }
         }
 
         if (Input.GetButtonUp("Jump") && rb2d.velocity.y < 0f && jumpDirection == -1)
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, rb2d.velocity.y * 0.5f);
+            coyoteTimeCounter = 0f;
         }
 
         if (Input.GetButton("Horizontal"))
@@ -77,7 +101,7 @@ public class PlayerMovementCurves : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, LayerMask.GetMask("Ground"));
+        return Physics2D.OverlapCircle(groundCheck.position, 0.01f, LayerMask.GetMask("Ground"));
     }
 
     private void Flip()
