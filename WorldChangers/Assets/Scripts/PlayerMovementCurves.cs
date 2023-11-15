@@ -15,19 +15,35 @@ public class PlayerMovementCurves : MonoBehaviour
     public AnimationCurve decelerationCurve;
     private float decelerationTime;
     private float accelerationTime;
+    private int jumpDirection;
 
     
 
     void Update()
     {
-        
+        if (gameObject.transform.position.y > 0)
+        {
+            jumpDirection = 1;
+        }
+        else
+        {
+            jumpDirection = -1;
+        }
         
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
-            rb2d.velocity = new Vector2(rb2d.velocity.x, jumpingPower);
+            rb2d.velocity = new Vector2(rb2d.velocity.x, jumpDirection * jumpingPower);
         }
 
-        if (Input.GetButtonUp("Jump") && rb2d.velocity.y > 0f)
+        if (Input.GetButtonUp("Jump") && rb2d.velocity.y > 0f && jumpDirection == 1)
+        {
+            if (jumpDirection == 1)
+            {
+                rb2d.velocity = new Vector2(rb2d.velocity.x, rb2d.velocity.y * 0.5f);
+            }
+        }
+
+        if (Input.GetButtonUp("Jump") && rb2d.velocity.y < 0f && jumpDirection == -1)
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, rb2d.velocity.y * 0.5f);
         }
@@ -47,6 +63,10 @@ public class PlayerMovementCurves : MonoBehaviour
             decelerationTime += Time.deltaTime;
         }
 
+        if(Input.GetAxisRaw("Horizontal") == 0)
+        {
+            accelerationTime = 0;
+        }
         Flip();
     }
 

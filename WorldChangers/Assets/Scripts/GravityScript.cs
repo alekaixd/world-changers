@@ -38,15 +38,8 @@ public class GravityScript : MonoBehaviour
 
     private void Flip()
     {
-        int noRotation = 0;
-        int flippedRotation = 180;
-        if (hasFlippedUp)
-        {
-            gameObject.transform.rotation = Quaternion.Euler(0, 0, noRotation);
-        }
-        else if (hasFlippedDown)
-        {
-            gameObject.transform.rotation = Quaternion.Euler(0, 0, flippedRotation);
-        }
+        Vector3 localScale = transform.localScale;
+        localScale.y *= -1f;
+        transform.localScale = localScale;
     }
 }
